@@ -145,19 +145,16 @@ trait PolarityStatusListener extends EnglishStatusListener {
    *   2 for neutral
    */
   val random = new scala.util.Random
-  //val positives = io.Source.fromInputStream(new GZIPInputStream(this.getClass.getResourceAsStream("/lang/eng/lexicon/positive-words.txt.gz"))).getLines.filterNot(_.startsWith(";")).toSet
-  //val negatives = io.Source.fromInputStream(new GZIPInputStream(this.getClass.getResourceAsStream("/lang/eng/lexicon/negative-words2.txt.gz"))).getLines.filterNot(_.startsWith(";")).toSet
+ // val positives = io.Source.fromInputStream(new GZIPInputStream(this.getClass.getResourceAsStream("/lang/eng/lexicon/positive-words.txt.gz"))).getLines.filterNot(_.startsWith(";")).toSet
+  //val negatives = io.Source.fromInputStream(new GZIPInputStream(this.getClass.getResourceAsStream("/lang/eng/lexicon/negative-words.txt.gz"))).getLines.filterNot(_.startsWith(";")).toSet
   
   def getPolarity(text: String): Int = {
     val words = text.split(" ").toList
 	var pos = 0
 	var neg = 0
 	val positives = io.Source.fromInputStream(new GZIPInputStream(this.getClass.getResourceAsStream("/lang/eng/lexicon/positive-words.txt.gz"))).getLines.filterNot(_.startsWith(";")).toSet
-    val negatives = io.Source.fromInputStream(this.getClass.getResourceAsStream("/lang/eng/lexicon/testneg.txt")).getLines.filterNot(_.startsWith(";")).toSet
+  val negatives = io.Source.fromInputStream(new GZIPInputStream(this.getClass.getResourceAsStream("/lang/eng/lexicon/negative-words.txt.gz"))).getLines.filterNot(_.startsWith(";")).toSet
   
-	//val polarityCheck = new English
-	//val positives = polarityCheck.vocabulary
-	// val negatives = polarityCheck.stopwords
 	for(word <- words) yield
 	{
 		if(positives.map(_.toLowerCase).contains(word.toLowerCase))
