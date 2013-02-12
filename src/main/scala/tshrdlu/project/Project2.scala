@@ -3,7 +3,7 @@ package tshrdlu.project
 import twitter4j._
 import tshrdlu.twitter._
 import tshrdlu.util.{English,SimpleTokenizer}
-
+import java.util.zip.GZIPInputStream
 /**
  * Show only tweets that appear to be English.
  */
@@ -32,9 +32,26 @@ trait EnglishStatusListener extends StatusOnlyListener {
    * Test whether a given text is written in English.
    */
   val TheRE = """(?i)\bthe\b""".r // Throw me away!
-  def isEnglish(text: String) = {
-    // Remove this and do better.
-    !TheRE.findFirstIn(text).isEmpty
+  def isEnglish(text: String):Boolean = {
+    val words = text.split(" ").toList
+	val dict = new English
+	var count = 0;
+	var countStop = 0;
+	for (word <- words) yield
+	{
+		if(dict.vocabulary.map(_.toLowerCase).filter(wd => wd.length > 1 ).contains(word.toLowerCase))
+		{
+			count += 1
+		}
+		if(dict.stopwords.map(_.toLowerCase).filter(wd => wd.length > 1).contains(word.toLowerCase))
+		   countStop += 1
+	}
+	if(count > 2 && text.length > 2 && countStop > 1)
+		return true;
+	else if ( count > 0 && (count == text.length || countStop == text.length))
+		return true;
+	else	
+		return false;
   }
 
 }
@@ -120,6 +137,7 @@ trait PolarityStatusListener extends EnglishStatusListener {
     
   }
 
+  
   /**
    * Given a text, return its polarity:
    *   0 for positive
@@ -127,8 +145,39 @@ trait PolarityStatusListener extends EnglishStatusListener {
    *   2 for neutral
    */
   val random = new scala.util.Random
-  def getPolarity(text: String) = {
-    random.nextInt(3)
+  //val positives = io.Source.fromInputStream(new GZIPInputStream(this.getClass.getResourceAsStream("/lang/eng/lexicon/positive-words.txt.gz"))).getLines.filterNot(_.startsWith(";")).toSet
+  //val negatives = io.Source.fromInputStream(new GZIPInputStream(this.getClass.getResourceAsStream("/lang/eng/lexicon/negative-words2.txt.gz"))).getLines.filterNot(_.startsWith(";")).toSet
+  
+  def getPolarity(text: String): Int = {
+    val words = text.split(" ").toList
+	var pos = 0
+	var neg = 0
+	val positives = io.Source.fromInputStream(new GZIPInputStream(this.getClass.getResourceAsStream("/lang/eng/lexicon/positive-words.txt.gz"))).getLines.filterNot(_.startsWith(";")).toSet
+    val negatives = io.Source.fromInputStream(this.getClass.getResourceAsStream("/lang/eng/lexicon/testneg.txt")).getLines.filterNot(_.startsWith(";")).toSet
+  
+	//val polarityCheck = new English
+	//val positives = polarityCheck.vocabulary
+	// val negatives = polarityCheck.stopwords
+	for(word <- words) yield
+	{
+		if(positives.map(_.toLowerCase).contains(word.toLowerCase))
+		{
+			pos += 1
+		}
+		if(negatives.map(_.toLowerCase).contains(word.toLowerCase))
+		{
+			neg += 1
+		}
+	}
+	if(pos > neg)
+		return 0;
+	else if (neg > pos)
+		return 1;
+	else
+		return 2;
   }
 
 }
+
+
+

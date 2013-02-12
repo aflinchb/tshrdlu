@@ -27,6 +27,7 @@ import TwitterAuthentication._
  */
 class BaseStreamer(config: Configuration = configFromProperties)
 extends PrintStatusListener {
+  //val config2 = new twitter4j.conf.ConfigurationBuilder().setOAuthConsumerKey("Dy4Ew5kOAikPJyXZGtm3w").setOAuthConsumerSecret("EwUYaNnnVjrYXoSVvectYGHR5bhqEJR0blmwZc").setOAuthAccessToken("1126366328-Rnwkyx9LwCrEITOs2GY2AYdQEnSzIXKfK5B09PG").setOAuthAccessTokenSecret("HVHsCLfNwO5YiFZjcygzF4S69N4DSb0KN0eqPQzSGk").build 
   val twitterStream = new TwitterStreamFactory(config).getInstance
   twitterStream.addListener(this)
 

@@ -17,8 +17,8 @@ object TwitterAuthentication {
       .setOAuthAccessToken(getAuthProperty("accessToken"))
       .setOAuthAccessTokenSecret(getAuthProperty("accessTokenSecret"))
       .build
-
+	
   private def getAuthProperty(description: String) =
-    System.getProperty("twitter4j.oauth."+description)
-
+    //System.getProperty("twitter4j.oauth."+description)
+	System.getenv("TWITTER4J_OAUTH_"+description.toUpperCase)
 }
