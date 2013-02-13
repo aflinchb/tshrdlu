@@ -2,7 +2,7 @@ package tshrdlu.project
 
 import twitter4j._
 import tshrdlu.twitter._
-import tshrdlu.util.{English,SimpleTokenizer}
+import tshrdlu.util.{English,SimpleTokenizer,PolarityWords}
 import java.util.zip.GZIPInputStream
 /**
  * Show only tweets that appear to be English.
@@ -36,19 +36,14 @@ trait EnglishStatusListener extends StatusOnlyListener {
     val words = text.split(" ").toList
 	val dict = new English
 	var count = 0;
-	var countStop = 0;
 	for (word <- words) yield
 	{
 		if(dict.vocabulary.map(_.toLowerCase).filter(wd => wd.length > 1 ).contains(word.toLowerCase))
-		{
 			count += 1
-		}
-		if(dict.stopwords.map(_.toLowerCase).filter(wd => wd.length > 1).contains(word.toLowerCase))
-		   countStop += 1
 	}
-	if(count > 2 && text.length > 2 && countStop > 1)
+	if(count > 2 && text.length > 2)
 		return true;
-	else if ( count > 0 && (count == text.length || countStop == text.length))
+	else if ( count > 0 && count == text.length)
 		return true;
 	else	
 		return false;
@@ -87,14 +82,14 @@ object PolarityStatusStreamer extends BaseStreamer with PolarityStatusListener
  * statistics at default interval (every 100 tweets). Filtered by provided
  * query terms.
  */
-object PolarityTermStreamer 
+object PolarityTermStreamer extends FilteredStreamer with TermFilter with PolarityStatusListener
 
 /**
  * Output polarity labels for every English tweet and output polarity
  * statistics at an interval of every ten tweets. Filtered by provided
  * query locations.
  */
-object PolarityLocationStreamer 
+object PolarityLocationStreamer extends FilteredStreamer with LocationFilter with PolarityStatusListener
 
 
 /**
@@ -145,26 +140,17 @@ trait PolarityStatusListener extends EnglishStatusListener {
    *   2 for neutral
    */
   val random = new scala.util.Random
- // val positives = io.Source.fromInputStream(new GZIPInputStream(this.getClass.getResourceAsStream("/lang/eng/lexicon/positive-words.txt.gz"))).getLines.filterNot(_.startsWith(";")).toSet
-  //val negatives = io.Source.fromInputStream(new GZIPInputStream(this.getClass.getResourceAsStream("/lang/eng/lexicon/negative-words.txt.gz"))).getLines.filterNot(_.startsWith(";")).toSet
-  
+  val polarityCheck = new PolarityWords
   def getPolarity(text: String): Int = {
     val words = text.split(" ").toList
 	var pos = 0
 	var neg = 0
-	val positives = io.Source.fromInputStream(new GZIPInputStream(this.getClass.getResourceAsStream("/lang/eng/lexicon/positive-words.txt.gz"))).getLines.filterNot(_.startsWith(";")).toSet
-  val negatives = io.Source.fromInputStream(new GZIPInputStream(this.getClass.getResourceAsStream("/lang/eng/lexicon/negative-words.txt.gz"))).getLines.filterNot(_.startsWith(";")).toSet
-  
 	for(word <- words) yield
 	{
-		if(positives.map(_.toLowerCase).contains(word.toLowerCase))
-		{
+		if(polarityCheck.stopwords.map(_.toLowerCase).contains(word.toLowerCase))
 			pos += 1
-		}
-		if(negatives.map(_.toLowerCase).contains(word.toLowerCase))
-		{
+		if(polarityCheck.vocabulary.map(_.toLowerCase).contains(word.toLowerCase))
 			neg += 1
-		}
 	}
 	if(pos > neg)
 		return 0;

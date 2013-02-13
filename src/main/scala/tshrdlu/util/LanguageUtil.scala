@@ -66,3 +66,7 @@ class English extends Language("eng") {
   lazy val vocabulary = getLexicon("masc_vocab.txt.gz") ++ stopwords
 }
 
+class PolarityWords extends Language("eng"){
+	lazy val stopwords = getLexicon("positive-words.txt.gz")
+	lazy val vocabulary = getLexicon("negative-words.txt.gz")
+}
