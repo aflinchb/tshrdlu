@@ -19,6 +19,6 @@ object TwitterAuthentication {
       .build
 	
   private def getAuthProperty(description: String) =
-    //System.getProperty("twitter4j.oauth."+description)
-	System.getenv("TWITTER4J_OAUTH_"+description.toUpperCase)
+    System.getProperty("twitter4j.oauth."+description)
+	//System.getenv("TWITTER4J_OAUTH_"+description.toUpperCase)
 }

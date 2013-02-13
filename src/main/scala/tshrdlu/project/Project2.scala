@@ -31,9 +31,9 @@ trait EnglishStatusListener extends StatusOnlyListener {
   /**
    * Test whether a given text is written in English.
    */
-  val TheRE = """(?i)\bthe\b""".r // Throw me away!
+  //val TheRE = """(?i)\bthe\b""".r // Throw me away!
   def isEnglish(text: String):Boolean = {
-    val words = text.split(" ").toList
+    val words = text.split(" ").toList.filterNot(_.startsWith("@")).filterNot(_.startsWith("#"))
 	val dict = new English
 	var count = 0;
 	for (word <- words) yield
@@ -43,7 +43,7 @@ trait EnglishStatusListener extends StatusOnlyListener {
 	}
 	if(count > 2 && text.length > 2)
 		return true;
-	else if ( count > 0 && count == text.length)
+	else if ( count > 0 && count == words.length)
 		return true;
 	else	
 		return false;
@@ -90,7 +90,9 @@ object PolarityTermStreamer extends FilteredStreamer with TermFilter with Polari
  * query locations.
  */
 object PolarityLocationStreamer extends FilteredStreamer with LocationFilter with PolarityStatusListener
-
+{
+	override val outputInterval = 10
+}
 
 /**
  * For every tweet detected as English, compute its polarity based
