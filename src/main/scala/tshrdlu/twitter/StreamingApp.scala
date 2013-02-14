@@ -54,8 +54,10 @@ abstract class FilteredStreamer extends BaseStreamer with Filterable {
    * Get a filtered stream based on the FilterQuery provided by
    * extending classes.
    */
+  
   override def main(args: Array[String]) {
     twitterStream.filter(getQuery(args))
+	
   }
 
 }
